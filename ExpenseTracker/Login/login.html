@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Login</title>
+    <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+    <form onSubmit="login(event)">
+        <label for="email">Enter your Email:</label>
+        <input type="email" id="email" name="email" require/>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required/>
+        <button type="submit" class="btn">Login</button>
+        <a href="../Signup/signup.html"> New User - SignUp Now</a>
+    </form>
+    
+    
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.5.0/axios.min.js"></script>
+    <script>
+        async function login(event) {
+            try{
+                event.preventDefault();
+                const email = event.target.email.value;
+                const password = event.target.password.value;
+
+                const LoginDetails = {
+                    email: email,
+                    password: password
+                };
+                console.log(loginDetails);
+                const response = await axios.post("http://localhost:3000/user/signup",loginDetails)
+                    if(response.status === 200){
+                       alert(response.data.message);
+
+                    }else{
+                        throw new Error('failed to signup');
+                    }
+            }
+            catch(err){
+                console.log(JSON.stringify(err));
+                document.body.innerHTML += `<div style="color:red;">${err.message}<div>`;
+            }
+
+        }
+
+    </script>
+
+    
+</body>
+</html>
