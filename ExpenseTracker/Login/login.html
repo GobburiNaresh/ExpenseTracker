@@ -30,13 +30,14 @@
                     email: email,
                     password: password
                 };
-                console.log(loginDetails);
-                const response = await axios.post("http://localhost:3000/user/signup",loginDetails)
+                console.log(LoginDetails);
+                const response = await axios.post("http://localhost:3000/user/login",LoginDetails)
                     if(response.status === 200){
-                       alert(response.data.message);
+                       //alert(response.data.message);
+                       window.location.href="../Expense/expense.html";
 
                     }else{
-                        throw new Error('failed to signup');
+                        throw new Error('failed to login');
                     }
             }
             catch(err){

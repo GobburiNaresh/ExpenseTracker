@@ -6,20 +6,25 @@ const bodyParser = require('body-parser');
 
 const sequelize = require('./util/database');
 
-const Order = require('./models/user');
+const Order = require('./models/signup');
+const Expense = require('./models/expense');
+
 var cors = require('cors');
 
 const app = express();
 
 app.use(cors());
 
-const userRoutes = require('./routes/user');
+const userRoutes = require('./routes/signup');
+const expenseRoutes = require('./routes/expense');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+
 app.use('/user', userRoutes);
+app.use('/expense',expenseRoutes);
 
 sequelize
   .sync()

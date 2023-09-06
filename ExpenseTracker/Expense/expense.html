@@ -1,0 +1,95 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExpenseTracker</title>
+    <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <h1>Expense Tracker</h1>
+      </header>
+    <form id="my-form" onSubmit="ExpenseTracker(event)">
+        <div id="expense" >
+            <label for="expenseAmount">Choose Expense Amount:</label>
+            <input type="number" id="amount" class="amount" name="amount"><br>
+            <label for="description">Choose destription:</label>
+            <input type="text" id="description" class="description" name="description"><br>
+            <label for="category">Choose a category:</label>
+            <select id="category" name="category">
+                <option value="fuel">Fuel</option>
+                <option value="food">Food</option>
+                <option value="movie">Movie</option>
+                <option value="parking">Parking</option>
+                <option value="cooldrink">Cooldrink</option>
+                <option value="rent">Rent</option>
+            </select>
+            <button type="submit" class="btn">Add Expense</button>
+            <ul id="listOfExpenses"></ul>
+        </div>
+    </form>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.5.0/axios.min.js"></script>
+    <script>
+        async function ExpenseTracker(event) {
+          try {
+            event.preventDefault();
+            const amount = event.target.amount.value;
+            const description = event.target.description.value;
+            const category = event.target.category.value;
+      
+            const expenseDetails = {
+              amount: amount,
+              description: description,
+              category: category,
+            };
+      
+            const response = await axios.post("http://localhost:3000/expense/addExpense", expenseDetails);
+      
+            if (response.status === 201) {
+              addNewExpenseToUI(response.data.expense);
+            } else {
+              throw new Error('Failed to create expense');
+            }
+          } catch (err) {
+            console.error(err);
+            document.body.innerHTML += `<div style="color:red;">${err.message}</div>`;
+          }
+        }
+      
+        window.addEventListener('DOMContentLoaded', () => {
+          axios.get("http://localhost:3000/expense/getExpenses")
+            .then((response) => {
+              response.data.expenses.forEach((expense) => {
+                addNewExpenseToUI(expense);
+              });
+            })
+            .catch((error) => {
+              console.error(error);
+            });
+        });
+      
+        function addNewExpenseToUI(expenseDetails) {
+          const parentElement = document.getElementById('listOfExpenses');
+          const childElement = document.createElement('li');
+          childElement.textContent = `${expenseDetails.amount} -- ${expenseDetails.description} -- ${expenseDetails.category}`;
+      
+          const deleteButton = document.createElement('input');
+          deleteButton.type = 'button';
+          deleteButton.value = 'delete';
+          deleteButton.id = 'delete';
+          deleteButton.onclick = () => {
+            axios.delete(`http://localhost:3000/expense/deleteExpense/${expenseDetails.id}`)
+              .then(() => {
+                parentElement.removeChild(childElement);
+              })
+              .catch((error) => {
+                console.error(error);
+              });
+          };
+          childElement.appendChild(deleteButton);
+          parentElement.appendChild(childElement);
+        }
+      </script>
+    
+</body>
+</html>
