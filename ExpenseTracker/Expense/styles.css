@@ -52,22 +52,27 @@ select[id='category']{
     border: 1px solid #ccc;
     border-radius: 3px;
 }
-
+.button-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
 
 button[type='submit'] {
-    display: block;
-    width: 100%;
+    flex: 1;
     padding: 10px;
-    background: #007BFF;
-    color: #ffffff;
     border: none;
     border-radius: 3px;
     cursor: pointer;
+    margin-right: 10px;
 }
 
+button[type='submit']:last-child {
+    margin-right: 0;
+}
 
 .btn {
-    background-color: #3498db;
+    background-color: #0fd21c;
     color: #fff;
     padding: 10px 20px;
     border: none;
@@ -77,8 +82,22 @@ button[type='submit'] {
 }
 
 .btn:hover {
-    background-color: #0c85c6;
+    background-color: #547a5a;
 }
+
+.button {
+    background-color: #d90808;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    text-decoration: none; 
+}
+
+.button:hover {
+    background-color: #b79281;
+} 
 
 
 .nav-menu {

@@ -20,7 +20,10 @@ const sequelize = require('../util/database');
     },
     password: {
       type: Sequelize.STRING,
-      allowNull: false,
+      
+    },
+    ispremiumuser: {
+      type: Sequelize.BOOLEAN,
     },
     createdAt:{
       type: Sequelize.DATE,

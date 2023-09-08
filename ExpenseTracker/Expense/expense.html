@@ -21,78 +21,19 @@
                 <option value="food">Food</option>
                 <option value="movie">Movie</option>
                 <option value="parking">Parking</option>
-                <option value="cooldrink">Cooldrink</option>
+                <option value="fees">Fees</option>
                 <option value="rent">Rent</option>
             </select>
-            <button type="submit" class="btn">Add Expense</button>
+            <div class="button-container">
+              <button id="rzp-button1" type="submit" class="button">BUY PREMIUM</button>
+              <button type="submit" class="btn">Add Expense</button>
+          </div>
             <ul id="listOfExpenses"></ul>
         </div>
     </form>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.5.0/axios.min.js"></script>
-    <script>
-        async function ExpenseTracker(event) {
-          try {
-            event.preventDefault();
-            const amount = event.target.amount.value;
-            const description = event.target.description.value;
-            const category = event.target.category.value;
-      
-            const expenseDetails = {
-              amount: amount,
-              description: description,
-              category: category,
-            }
-            console.log(expenseDetails);
-            const token = localStorage.getItem('token');
-            const response = await axios.post("http://localhost:3000/expense/addExpense", expenseDetails,{headers:{"Authorization" : token}});
-      
-            if (response.status === 201) {
-              addNewExpenseToUI(response.data.expense);
-            } else {
-              throw new Error('Failed to create expense');
-            }
-          } catch (err) {
-            console.error(err);
-            document.body.innerHTML += `<div style="color:red;">${err.message}</div>`;
-          }
-        }
-      
-        window.addEventListener('DOMContentLoaded', () => {
-          const token = localStorage.getItem('token');
-          axios.get("http://localhost:3000/expense/getExpenses",{headers:{"Authorization" : token}})
-            .then((response) => {
-              response.data.expenses.forEach((expense) => {
-                addNewExpenseToUI(expense);
-              });
-            })
-            .catch((error) => {
-              console.error(error);
-            });
-        });
-      
-        function addNewExpenseToUI(expenseDetails) {
-          const parentElement = document.getElementById('listOfExpenses');
-          const childElement = document.createElement('li');
-          childElement.textContent = `${expenseDetails.amount} -- ${expenseDetails.description} -- ${expenseDetails.category}`;
-      
-          const deleteButton = document.createElement('input');
-          deleteButton.type = 'button';
-          deleteButton.value = 'delete';
-          deleteButton.id = 'delete';
-          deleteButton.onclick = () => {  
-            const token = localStorage.getItem('token'); 
-            axios.delete(`http://localhost:3000/expense/deleteExpense/${expenseDetails.id}`, {headers: {"Authorization" : token} })
-              .then(() => {
-                parentElement.removeChild(childElement);
-              })
-              .catch((error) => {
-                console.error(error);
-              });
-          };
-          childElement.appendChild(deleteButton);
-          parentElement.appendChild(childElement);
-        }
-      </script>
+    <script src="./expense.js"></script>
     
 </body>
 </html>

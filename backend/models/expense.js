@@ -28,7 +28,7 @@ const sequelize = require('../util/database');
     updatedAt:{
       type: Sequelize.DATE,
       allowNull: true,
-    }
+    },
 
   });
 
