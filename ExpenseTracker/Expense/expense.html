@@ -8,7 +8,8 @@
 <body>
     <header>
         <h1>Expense Tracker</h1>
-      </header>
+    </header>
+    <h1 id="premium" style="color: red;display: flex; justify-content: center; align-items: center"></h1>
     <form id="my-form" onSubmit="ExpenseTracker(event)">
         <div id="expense" >
             <label for="expenseAmount">Choose Expense Amount:</label>
@@ -26,11 +27,16 @@
             </select>
             <div class="button-container">
               <button id="rzp-button1" type="submit" class="button">BUY PREMIUM</button>
-              <button type="submit" class="btn">Add Expense</button>
+              <button id="btn" type="submit" class="btn">Add Expense</button>
           </div>
+          <h3>Expenses:</h3>
             <ul id="listOfExpenses"></ul>
         </div>
+        <div id="message"></div>
+         
     </form>
+    <ul id = "leaderboard"></ul> 
+    
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.5.0/axios.min.js"></script>
     <script src="./expense.js"></script>

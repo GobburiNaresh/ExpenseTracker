@@ -30,8 +30,8 @@ const signup = async (req,res,next) =>{
       }
 }
 
-function generateAccessToken(id,name){
-  return jwt.sign({userId : id, name: name}, '9010487025');
+function generateAccessToken(id,name,ispremiumuser){
+  return jwt.sign({userId : id, name: name, ispremiumuser}, '9010487025');
 }
 
 const login = async (req,res) => {
@@ -48,14 +48,14 @@ const login = async (req,res) => {
             return res.status(500).json({ message: 'Something went wrong', success: false });
           }
           if(result === true){
-            res.status(200).json({success : true,message:"User Logged in Successfully", token: generateAccessToken(user[0].id,user[0].name)});
+            res.status(200).json({success : true,message:"User Logged in Successfully", token: generateAccessToken(user[0].id,user[0].name,user[0].ispremiumuser)});
           }
           else{
           return res.status(200).json({success : false,message:"password is incorrect"})
         }
       })
       }else {
-        return res.status(404).json({success:false,message:'User DOesnot exist'})
+        return res.status(404).json({success:false,message:'User Doesnot exist'})
       }
   }catch(err){
       res.status(500).json({message: err,success: false})
@@ -65,5 +65,6 @@ const login = async (req,res) => {
 
 module.exports = {
     signup,
-    login
+    login,
+    generateAccessToken
 }

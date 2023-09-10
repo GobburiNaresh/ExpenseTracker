@@ -1,5 +1,6 @@
 const Razorpay = require('razorpay');
 const Order =  require('../models/orders');
+const userController = require('./signup');
 
 
 const purchasePremium = async (req,res) => {
@@ -32,28 +33,18 @@ const purchasePremium = async (req,res) => {
 
 const updateTransactionStatus = async (req, res) => {
     try {
+      const userId = req.user.id;
       const { payment_id,order_id } = req.body;
       const order = await Order.findOne({ where: { id : order_id } });
-      console.log(order_id);
-      console.log(order)
 
       if (!order) {
         return res.status(404).json({ success: false, error: 'Order not found' });
       }
       if (payment_id) {
-        // Transaction is successful
         const updatedOrder = await order.update({ paymentid: payment_id, status: 'SUCCESSFUL' });
         await req.user.update({ ispremiumuser: true });
-        return res.status(202).json({ success: true, message: 'Transaction Successful', order: updatedOrder });
-        // Promise.all([promise1, promise2])
-        //   .then(() => {
-        //     return res.status(202).json({ success: true, message: 'Transaction Successful' });
-        //   })
-        //   .catch((error) => {
-        //     throw new Error(error);
-        //   });
+        return res.status(202).json({ success: true, message: 'Transaction Successful', order: updatedOrder , token: userController.generateAccessToken(userId,undefined,true)});
       } else {
-        // Transaction failed, update status to 'FAILED'
         const promise = await order.update({ status: 'FAILED' });
   
         promise
