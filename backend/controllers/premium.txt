@@ -1,0 +1,27 @@
+const getUserLeaderBoard = async (req, res) => {
+    try {
+        const users = await User.findAll({
+            attributes: ['id', 'name']
+        });
+        const userAggregatedExpenses = await Expense.findAll({
+            attributes: ['userDetailId', [sequelize.fn('sum', sequelize.col('amount')), 'total_cost']],
+            group: ['userDetailId']
+        });
+        var userLeaderBoardDetails = [];
+        users.forEach((user) => {
+            // Find the corresponding user's aggregated expense using userDetailId
+            const userExpense = userAggregatedExpenses.find((expense) => expense.userDetailId === user.id);
+            userLeaderBoardDetails.push({ name: user.name, total_cost: userExpense ? userExpense.get('total_cost') : 0 });
+        });
+        console.log(userLeaderBoardDetails);
+        userLeaderBoardDetails.sort((a, b) => b.total_cost - a.total_cost);
+        res.status(200).json(userLeaderBoardDetails);
+    } catch (err) {
+        console.log(err);
+        res.status(500).json(err);
+    }
+};
+
+module.exports = {
+    getUserLeaderBoard
+};
