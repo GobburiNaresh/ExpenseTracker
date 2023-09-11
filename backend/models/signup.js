@@ -25,6 +25,10 @@ const sequelize = require('../util/database');
     ispremiumuser: {
       type: Sequelize.BOOLEAN,
     },
+    totalExpenses: {
+      type: Sequelize.INTEGER,
+      defaultValue : 0,
+    },
     createdAt:{
       type: Sequelize.DATE,
       allowNull: true,
@@ -32,7 +36,8 @@ const sequelize = require('../util/database');
     updatedAt:{
       type: Sequelize.DATE,
       allowNull: true,
-    }
+    },
+    
 
   });
 

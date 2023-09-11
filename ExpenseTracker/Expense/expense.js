@@ -15,7 +15,7 @@ async function ExpenseTracker(event) {
       const response = await axios.post("http://localhost:3000/expense/addExpense", expenseDetails,{headers:{"Authorization" : token}});
 
       if (response.status === 201) {
-        addNewExpenseToUI(response.data.expense);
+        addNewExpenseToUI(response.data.amount);
       } else {
         throw new Error('Failed to create expense');
       }
@@ -101,7 +101,7 @@ function showPremiumUser(){
       var leaderboardElem = document.getElementById('leaderboard');
       leaderboardElem.innerHTML += '<h1> Leader board </h1>'
       userLeaderBoardArray.data.forEach((expenseDetails) => {
-        leaderboardElem.innerHTML += `<li>Name - ${expenseDetails.name} Total Expenses - ${expenseDetails.total_cost}</li>`
+        leaderboardElem.innerHTML += `<li>Name - ${expenseDetails.name} Total Expenses - ${expenseDetails.totalExpenses}</li>`
       })
     }
     document.getElementById("message").appendChild(inputElement);

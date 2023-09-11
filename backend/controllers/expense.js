@@ -1,22 +1,36 @@
 const Expense = require('../models/expense');
 
+const User = require('../models/signup');
+
+const sequelize = require('../util/database');
+
 const addExpense = async (req,res,next) =>{
-    try{
+    
     const {amount,description,category} = req.body;
 
     if(amount == undefined || amount.length <= 0){
         return res.status(400).json({success: false,message: 'parameters missing'})
     }
     
-    const newExpense = await Expense.create({amount,description,category,userDetailId: req.user.id}) ///req.user.createExpense
-      res.status(201).json({success:true,
-        message:`Successfully created new user`,
-        expense: newExpense,
-    });
-    }catch(err){
+    await Expense.create({amount,description,category,userDetailId: req.user.id}).then(expense => {
+        const totalExpense = Number(req.user.totalExpenses) + Number(amount);
+        console.log(totalExpense)
+        User.update({
+            totalExpenses : totalExpense
+        },{
+            where:{id : req.user.id}
+        }).then(async() => {
+            res.status(201).json({success:true,
+                message:`Successfully created new user`,
+                })
+        }).catch(async() => {
+            res.status(500).json({success : false,error: err});
+        })
+    }) ///req.user.createExpense
+    .catch(async() =>{
         console.log(err);
         res.status(500).json({success : false,error: err});
-    }
+    });
 }
 
 
