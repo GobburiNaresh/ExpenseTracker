@@ -4,34 +4,45 @@ const User = require('../models/signup');
 
 const sequelize = require('../util/database');
 
-const addExpense = async (req,res,next) =>{
-    
-    const {amount,description,category} = req.body;
-
-    if(amount == undefined || amount.length <= 0){
-        return res.status(400).json({success: false,message: 'parameters missing'})
-    }
-    
-    await Expense.create({amount,description,category,userDetailId: req.user.id}).then(expense => {
-        const totalExpense = Number(req.user.totalExpenses) + Number(amount);
-        console.log(totalExpense)
-        User.update({
-            totalExpenses : totalExpense
-        },{
-            where:{id : req.user.id}
-        }).then(async() => {
-            res.status(201).json({success:true,
-                message:`Successfully created new user`,
-                })
-        }).catch(async() => {
-            res.status(500).json({success : false,error: err});
+const addExpense = async (req, res, next) => {
+    const t = await sequelize.transaction();
+    try {
+      const { amount, description, category } = req.body;
+  
+      if (amount == undefined || amount.length <= 0) {
+        return res.status(400).json({ success: false, message: 'parameters missing' });
+      }
+  
+      const expense = await Expense.create({ amount, description, category, userDetailId: req.user.id }, { transaction: t });
+      const totalExpense = Number(req.user.totalExpenses) + Number(amount);
+      User.update(
+        {
+          totalExpenses: totalExpense,
+        },
+        {
+          where: { id: req.user.id },
+          transaction: t,
+        }
+      )
+        .then(async () => {
+          await t.commit();
+          res.status(201).json({
+            success: true,
+            message: `Successfully created new user`,
+            expense: expense,
+          });
         })
-    }) ///req.user.createExpense
-    .catch(async() =>{
-        console.log(err);
-        res.status(500).json({success : false,error: err});
-    });
-}
+        .catch(async () => {
+          await t.rollback();
+          res.status(500).json({ success: false, error: err });
+        });
+    } catch (err) {
+      await t.rollback();
+      console.log(err);
+      res.status(500).json({ success: false, error: err });
+    }
+  };
+  
 
 
 const getExpenses = (req,res)=>{

@@ -15,7 +15,7 @@ async function ExpenseTracker(event) {
       const response = await axios.post("http://localhost:3000/expense/addExpense", expenseDetails,{headers:{"Authorization" : token}});
 
       if (response.status === 201) {
-        addNewExpenseToUI(response.data.amount);
+        addNewExpenseToUI(response.data.expense);
       } else {
         throw new Error('Failed to create expense');
       }
