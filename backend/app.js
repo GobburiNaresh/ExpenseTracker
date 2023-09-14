@@ -2,20 +2,25 @@ const path = require('path');
 
 const express = require('express');
 
-const bodyParser = require('body-parser');
-
 const sequelize = require('./util/database');
+
+const bodyParser = require('body-parser');
 
 const User = require('./models/signup');
 const Expense = require('./models/expense');
 const Order = require('./models/orders');
-const Forgotpassword = require('./models/forgotpassword');
+const Forgotpassword = require('./models/resetpassword');
+
+const app = express();
 
 var cors = require('cors');
-const app = express();
 app.use(cors());
 
+
+
 const dotenv = require('dotenv');
+dotenv.config();
+
 
 const userRoutes = require('./routes/signup');
 const expenseRoutes = require('./routes/expense');
@@ -23,7 +28,7 @@ const purchaseRoutes = require('./routes/purchase');
 const premiumRoutes = require('./routes/premiumFeature');
 const resetPasswordRoutes = require('./routes/resetpassword')
 
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 
@@ -53,3 +58,6 @@ sequelize
   .catch(err => {
     console.log(err);
   });
+
+
+

@@ -1,8 +1,24 @@
 const Expense = require('../models/expense');
-
 const User = require('../models/signup');
-
 const sequelize = require('../util/database');
+const S3Services = require('../services/s3services');
+
+
+const downloadExpense = async (req,res) => {
+  const userDetailId = req.user.id;
+  const expenses = await Expense.findAll({ where: { userDetailId: userDetailId }});
+  const stringifiedExpenses = JSON.stringify(expenses);
+
+  console.log('1',stringifiedExpenses)
+  
+
+  const filename = `Expense${userDetailId}/${new Date()}.txt`;
+  console.log('2',filename)
+  const fileURL = await S3Services.uploadToS3(stringifiedExpenses, filename);
+  console.log(fileURL)
+  res.status(201).json({fileURL , success: true})
+  
+}
 
 const addExpense = async (req, res, next) => {
     const t = await sequelize.transaction();
@@ -26,7 +42,7 @@ const addExpense = async (req, res, next) => {
       )
         .then(async () => {
           await t.commit();
-          res.status(201).json({
+          res.status(200).json({
             success: true,
             message: `Successfully created new user`,
             expense: expense,
@@ -73,6 +89,7 @@ const deleteExpense = (req,res)=>{
 }
 
 module.exports = {
+    downloadExpense,
     addExpense,
     getExpenses,
     deleteExpense
