@@ -1,122 +1,73 @@
+const sendinblue = require('sib-api-v3-sdk');
+const { TransactionalEmailsApi } = sendinblue;
 const uuid = require('uuid');
-const sgMail = require('@sendgrid/mail');
-const bcrypt = require('bcrypt');
-
-const User = require('../models/signup');
-const Forgotpassword = require('../models/forgotpassword');
+const Forgotpassword = require("../models/resetpassword");
+const User = require("../models/signup");
+const SendinblueAPIKey = 'V3.xsmtpsib-a3b229e809825338d442fb509e8268c4103afcf10b3cc72a428e4bd7732342c1-TYIEfqpWJPsBjCUQ';
+const sendinblueClient = new TransactionalEmailsApi();
 
 const forgotpassword = async (req, res) => {
-    try {
-        const { email } =  req.body;
-        const user = await User.findOne({where : { email }});
-        if(user){
-            const id = uuid.v4();
-            user.createForgotpassword({ id , active: true })
-                .catch(err => {
-                    throw new Error(err)
-                })
+  try {
+    const email = req.body.email;
+    const user = await User.findOne({ where: {email: email} });
+    console.log(user);
+    console.log("========>===========================================>");
+    sendinblue.ApiClient.instance.authentications['api-key'].apiKey = SendinblueAPIKey;
+    if (user) {
+      const id = uuid.v4();
+      console.log('forgotid', id);
+      Forgotpassword.create({ id, userDetailId: user.id, active: true })
+        .catch(err => {
+          console.log(err);
+        });
 
-            sgMail.setApiKey('xsmtpsib-ea9cd1e51dae8bd5d8852a1a1b873e4e9ca754a3a227450f7d338ab362e237c9-GbfZSvHCN82nLXEQ')
+      const msg = {
+        to: [{ email: email }],
+        templateId: 1, // Replace with your SendinBlue template ID
+        params: { resetLink: `http://localhost:3000/password/resetpassword/${id}` }
+      };
 
-            const msg = {
-                to: email, // Change to your recipient
-                from: 'rc4663128@gmail.com', // Change to your verified sender
-                subject: 'Sending with SendGrid is Fun',
-                text: 'and easy to do anywhere, even with Node.js',
-                html: `<a href="http://localhost:3000/password/resetpassword/${id}">Reset password</a>`,
-            }
-
-            sgMail
-            .send(msg)
-            .then((response) => {
-
-                // console.log(response[0].statusCode)
-                // console.log(response[0].headers)
-                return res.status(response[0].statusCode).json({message: 'Link to reset password sent to your mail ', sucess: true})
-
-            })
-            .catch((error) => {
-                throw new Error(error);
-            })
-
-            //send mail
-        }else {
-            throw new Error('User doesnt exist')
-        }
-    } catch(err){
-        console.error(err)
-        return res.json({ message: err, sucess: false });
+      sendinblueClient.sendTransacEmail(msg)
+        .then((response) => {
+          return res.status(200).json({ message: "Link to reset password", success: true });
+        })
+        .catch((err) => {
+          console.log(err);
+          return res.json({ message: "Failed to send email", success: false });
+        });
+    } else {
+      throw new Error("User does not exist");
     }
-
-}
+  } catch (err) {
+    console.log(err);
+    return res.json({ message: err.message, success: false });
+  }
+};
 
 const resetpassword = (req, res) => {
-    const id =  req.params.id;
-    Forgotpassword.findOne({ where : { id }}).then(forgotpasswordrequest => {
-        if(forgotpasswordrequest){
-            forgotpasswordrequest.update({ active: false});
-            res.status(200).send(`<html>
-                                    <script>
-                                        function formsubmitted(e){
-                                            e.preventDefault();
-                                            console.log('called')
-                                        }
-                                    </script>
-                                    <form action="/password/updatepassword/${id}" method="get">
-                                        <label for="newpassword">Enter New password</label>
-                                        <input name="newpassword" type="password" required></input>
-                                        <button>reset password</button>
-                                    </form>
-                                </html>`
-                                )
-            res.end()
-
-        }
-    })
-}
-
-const updatepassword = (req, res) => {
-
-    try {
-        const { newpassword } = req.query;
-        const { resetpasswordid } = req.params;
-        Forgotpassword.findOne({ where : { id: resetpasswordid }}).then(resetpasswordrequest => {
-            User.findOne({where: { id : resetpasswordrequest.userId}}).then(user => {
-                // console.log('userDetails', user)
-                if(user) {
-                    //encrypt the password
-
-                    const saltRounds = 10;
-                    bcrypt.genSalt(saltRounds, function(err, salt) {
-                        if(err){
-                            console.log(err);
-                            throw new Error(err);
-                        }
-                        bcrypt.hash(newpassword, salt, function(err, hash) {
-                            // Store hash in your password DB.
-                            if(err){
-                                console.log(err);
-                                throw new Error(err);
-                            }
-                            user.update({ password: hash }).then(() => {
-                                res.status(201).json({message: 'Successfuly update the new password'})
-                            })
-                        });
-                    });
-            } else{
-                return res.status(404).json({ error: 'No user Exists', success: false})
-            }
-            })
-        })
-    } catch(error){
-        return res.status(403).json({ error, success: false } )
+  const id = req.params.id;
+  Forgotpassword.findOne({ where: { id } }).then((forgotpasswordRequest) => {
+    if (forgotpasswordRequest) {
+      forgotpasswordRequest.update({ active: false });
+      res.status(200).send(`<html>
+          <script>
+              function formsubmitted(e){
+                  e.preventDefault();
+                  console.log('called')
+              }
+          </script>
+          <form action="/password/updatepassword/${id}" method="get">
+              <label for="newpassword">Enter New password</label>
+              <input name="newpassword" type="password" required></input>
+              <button>reset password</button>
+          </form>
+      </html>`);
+      res.end();
     }
-
-}
-
+  });
+};
 
 module.exports = {
-    forgotpassword,
-    updatepassword,
-    resetpassword
-}
+  forgotpassword,
+  resetpassword
+};
